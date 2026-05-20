@@ -2,7 +2,7 @@
 <html lang="pl">
 <head>
   <meta charset="UTF-8">
-  <title>Moja Sklepowia Motoryzacyjna</title>
+  <title>Sklep z częściami samochodowymi</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -17,7 +17,12 @@
     .product img { width: 100%; height: 180px; object-fit: cover; border-radius: 4px; }
     .product h3 { margin: 0.5rem 0; }
     .product .price { font-weight: bold; color: #003366; }
-    footer { margin-top: 2rem; background: #004080; color: white; text-align: center; padding: 1rem; }
+    .cart { margin-top: 2rem; background: white; padding: 1rem; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+    .cart h3 { margin-bottom: 0.5rem; border-bottom: 1px solid #eee; padding-bottom: 0.5rem; }
+    .cart-item { display: flex; justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px solid #eee; }
+    .cart-total { display: flex; justify-content: space-between; font-weight: bold; padding-top: 0.5rem; }
+    button { background: #003366; color: white; border: none; padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer; }
+    button:hover { background: #004080; }
   </style>
 </head>
 <body>
@@ -40,28 +45,36 @@
     <h2>Najczęściej kupowane</h2>
     <div class="products">
       <!-- Przykład jednego produktu -->
-      <div class="product">
+      <div class="product" data-id="1" data-name="Klocki hamulcowe dla BMW" data-price="299">
         <img src="https://via.placeholder.com/250x180" alt="Klocki hamulcowe">
         <h3>Klocki hamulcowe dla BMW</h3>
         <p>Wysoka trwałość, cicha praca.</p>
         <p class="price">299 zł</p>
-        <button>Dodaj do koszyka</button>
+        <button class="add-to-cart">Dodaj do koszyka</button>
       </div>
 
-      <div class="product">
+      <div class="product" data-id="2" data-name="Filtr powietrza dla Audi" data-price="79">
         <img src="https://via.placeholder.com/250x180" alt="Filtr powietrza">
         <h3>Filtr powietrza dla Audi</h3>
         <p>Zwiększ moc i redukuj spalanie.</p>
         <p class="price">79 zł</p>
-        <button>Dodaj do koszyka</button>
+        <button class="add-to-cart">Dodaj do koszyka</button>
       </div>
 
-      <div class="product">
+      <div class="product" data-id="3" data-name="Opony letnie dla Mercedes" data-price="499">
         <img src="https://via.placeholder.com/250x180" alt="Opony letnie">
         <h3>Opony letnie dla Mercedes</h3>
         <p>Stabilność i trakcja na mokrym.</p>
         <p class="price">499 zł</p>
-        <button>Dodaj do koszyka</button>
+        <button class="add-to-cart">Dodaj do koszyka</button>
+      </div>
+    </div>
+
+    <div class="cart">
+      <h3>Koszyk</h3>
+      <div id="cart-items"></div>
+      <div class="cart-total">
+        <span>Łącznie:</span> <span id="cart-total">0 zł</span>
       </div>
     </div>
   </main>
@@ -69,5 +82,62 @@
   <footer>
     <p>© 2026 Sklep z częściami samochodowymi | Warszawa</p>
   </footer>
+
+  <script>
+    // Koszyk jako obiekt (id: {name, price, qty})
+    let cart = {};
+
+    // Funkcja aktualizująca widok koszyka
+    function updateCart() {
+      const $items = document.getElementById("cart-items");
+      const $total = document.getElementById("cart-total");
+
+      $items.innerHTML = "";  // wyczyść
+
+      let total = 0;
+      for (const id in cart) {
+        const item = cart[id];
+        const row = document.createElement("div");
+        row.className = "cart-item";
+        row.innerHTML = `
+          <span>${item.name}</span>
+          <span>${item.qty} x ${formatPrice(item.price)} zł</span>
+          <button onclick="removeFromCart(${id})">Usuń</button>
+        `;
+        $items.appendChild(row);
+        total += item.qty * item.price;
+      }
+
+      $total.textContent = formatPrice(total) + " zł";
+    }
+
+    function formatPrice(price) {
+      return price.toFixed(2).replace(".", ",");
+    }
+
+    // Dodaj do koszyka
+    document.querySelectorAll(".add-to-cart").forEach(btn => {
+      btn.addEventListener("click", function () {
+        const product = this.closest(".product");
+        const id   = parseInt(product.dataset.id);
+        const name = product.dataset.name;
+        const price = parseFloat(product.dataset.price);
+
+        if (cart[id]) {
+          cart[id].qty += 1;
+        } else {
+          cart[id] = { name, price, qty: 1 };
+        }
+
+        updateCart();
+      });
+    });
+
+    // Usuń pojedynczy produkt
+    function removeFromCart(id) {
+      delete cart[id];
+      updateCart();
+    }
+  </script>
 </body>
 </html>
