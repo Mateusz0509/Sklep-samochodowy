@@ -1,94 +1,230 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pl">
 <head>
-  <meta charset="UTF-8" />
-  <title>Weryfikator przedawnienia długów</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Kalkulator przedawnienia roszczeń (PL)</title>
   <style>
-    body { font-family: Arial, sans-serif; max-width: 800px; margin: 40px auto; padding: 20px; }
-    label { display: block; margin: 10px 0 5px; }
-    input, select, button { width: 100%; padding: 8px; margin: 5px 0; }
-    textarea { width: 100%; height: 300px; margin: 10px 0; }
-    #wynik { margin: 15px 0; font-weight: bold; }
+    :root{--bg:#f6f8fb;--card:#fff;--accent:#0b64c6;--muted:#6b7280;--danger:#c62828}
+    body{font-family:Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; background:var(--bg); margin:0; padding:24px; color:#111}
+    .wrap{max-width:860px;margin:0 auto}
+    header{display:flex;gap:16px;align-items:center}
+    h1{font-size:20px;margin:0}
+    p.lead{margin:6px 0 18px;color:var(--muted)}
+    .card{background:var(--card);padding:18px;border-radius:10px;box-shadow:0 6px 18px rgba(11,100,198,0.06);margin-bottom:16px}
+    form .row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+    label{font-size:13px;color:var(--muted);display:block;margin-bottom:6px}
+    input[type="text"], input[type="date"], input[type="number"], select{
+      width:100%;padding:10px;border:1px solid #e6e9ef;border-radius:8px;font-size:15px;background:#fff;
+    }
+    .actions{display:flex;gap:8px;align-items:center;margin-top:6px}
+    button{background:var(--accent);color:#fff;padding:10px 14px;border-radius:8px;border:0;font-weight:600;cursor:pointer}
+    button.secondary{background:#eef3ff;color:var(--accent);font-weight:600}
+    .result{padding:14px;border-radius:8px;background:#f8fafc;border:1px solid #e6edf8;margin-top:12px}
+    .muted{color:var(--muted);font-size:13px}
+    .note{font-size:13px;color:var(--muted);margin-top:8px}
+    footer{margin-top:18px;font-size:13px;color:var(--muted)}
+    table.summary{width:100%;border-collapse:collapse;margin-top:10px}
+    table.summary td{padding:8px;border-top:1px solid #eef2f7}
+    .error{color:var(--danger);font-weight:600}
+    @media(max-width:640px){ form .row{grid-template-columns:1fr} }
   </style>
 </head>
 <body>
+  <div class="wrap">
+    <header>
+      <div>
+        <h1>Kalkulator przedawnienia roszczeń (Polska)</h1>
+        <p class="lead">Oblicza datę przedawnienia na podstawie daty wymagalności oraz rodzaju roszczenia.</p>
+      </div>
+    </header>
 
-  <h1>Weryfikator przedawnienia długów (PL)</h1>
+    <section class="card" aria-labelledby="form-title">
+      <h2 id="form-title" style="margin-top:0;font-size:16px">Formularz roszczenia</h2>
+      <form id="claimForm" onsubmit="return false;">
+        <div class="row">
+          <div>
+            <label for="type">Rodzaj długu</label>
+            <select id="type" required>
+              <option value="general">Roszczenie majątkowe (ogólne)</option>
+              <option value="periodic">Roszczenie okresowe (np. czynsz, renta)</option>
+              <option value="business">Roszczenie związane z działalnością gospodarczą</option>
+              <option value="other">Inne (sprawdź przepisy)</option>
+            </select>
+          </div>
+          <div>
+            <label for="amount">Kwota (opcjonalnie)</label>
+            <input id="amount" type="number" min="0" step="0.01" placeholder="np. 1250.00" />
+          </div>
+        </div>
 
-  <label>Typ roszczenia:</label>
-  <select id="typRoszczenia">
-    <option value="kredyt">Kredyt / karta kredytowa (3 lata)</option>
-    <option value="faktura">Faktura / działalność gospodarcza (3 lata)</option>
-    <option value="okresowe">Roszczenie okresowe (czynsz, składka, abonament – 3 lata)</option>
-    <option value="prywatna">Pożyczone prywatne (bez działalności gospodarczej – 6 lat)</option>
-  </select>
+        <div class="row">
+          <div>
+            <label for="dueDate">Data wymagalności</label>
+            <input id="dueDate" type="date" required />
+          </div>
+          <div>
+            <label for="startMethod">Metoda liczenia (domyślnie od dnia po wymagalności)</label>
+            <select id="startMethod">
+              <option value="nextDay">Od dnia następnego po dacie wymagalności</option>
+              <option value="sameDay">Od dnia wymagalności (użyj tylko z pewnością)</option>
+            </select>
+          </div>
+        </div>
 
-  <label>Data wymagalności (np. dzień wymagalności raty / faktury):</label>
-  <input type="date" id="dataWymagalnosci" />
+        <div class="actions">
+          <button id="calcBtn" type="button">Oblicz datę przedawnienia</button>
+          <button id="clearBtn" class="secondary" type="button">Wyczyść</button>
+          <div style="margin-left:auto" class="muted">Źródła i założenia: KC art.117-125, art.118 i omówienia prawnicze</div>
+        </div>
 
-  <button onclick="sprawdzPrzedawnienie()">Sprawdź przedawnienie</button>
+        <div id="output" class="result" hidden>
+          <div id="msg" class="muted"></div>
+          <table class="summary" id="summaryTable">
+            <tr><td>Data wymagalności</td><td id="outDueDate"></td></tr>
+            <tr><td>Data początkania biegu</td><td id="outStart"></td></tr>
+            <tr><td>Okres przedawnienia</td><td id="outPeriod"></td></tr>
+            <tr><td>Data przedawnienia</td><td id="outExpiry" style="font-weight:700"></td></tr>
+          </table>
+          <p class="note">Uwaga: program oblicza termin według ogólnych reguł (3 lata lub 6 lat) i przesuwa koniec terminu na koniec roku kalendarzowego, jeżeli termin jest dłuższy niż 2 lata. Nie uwzględnia wyjątków ustawowych ani przerwania/biegów wcześniejszych działań (przerwanie lub zawieszenie biegu przedawnienia może zmienić wynik) — w takim przypadku skonsultuj się z prawnikiem.</p>
+        </div>
+      </form>
+    </section>
 
-  <div id="wynik"></div>
-  <textarea id="pismo" placeholder="Tutaj pojawi się gotowe pismo do wklejenia"></textarea>
+    <section class="card">
+      <h3 style="margin-top:0">Jak działa kalkulator (krótko)</h3>
+      <p class="muted">Podstawowy termin przedawnienia to 6 lat; krótszy 3‑letni dotyczy roszczeń okresowych i roszczeń związanych z działalnością gospodarczą; koniec terminu przypada na ostatni dzień roku kalendarzowego, chyba że termin jest krótszy niż 2 lata — wtedy kończy się dokładnie po upływie okresu. Te zasady oparte są na art.118 k.c. i omówieniach prawniczych [web:1][web:5][web:6].</p>
+    </section>
+
+    <footer>
+      <div class="muted">Plik stworzony dla użytkownika Mateusz treder, Warszawa.</div>
+    </footer>
+  </div>
 
   <script>
-    function sprawdzPrzedawnienie() {
-      const dataWymagalnosciInput = document.getElementById("dataWymagalnosci").value;
-      const typ = document.getElementById("typRoszczenia").value;
+    // Pomocnicze funkcje dat
+    function parseDateInput(val){
+      if(!val) return null;
+      let d = new Date(val + 'T00:00:00');
+      return isNaN(d) ? null : d;
+    }
+    function addYears(date, years){
+      let d = new Date(date.getTime());
+      d.setFullYear(d.getFullYear() + years);
+      return d;
+    }
+    function formatDate(d){
+      if(!d) return '';
+      return d.toLocaleDateString('pl-PL');
+    }
+    function endOfYear(d){
+      return new Date(d.getFullYear(),11,31,0,0,0);
+    }
+    function plusOneDay(d){
+      let nd = new Date(d.getTime());
+      nd.setDate(nd.getDate()+1);
+      return nd;
+    }
 
-      if (!dataWymagalnosciInput) {
-        alert("Wpisz datę wymagalności.");
+    // Zasady (konfiguracja)
+    const RULES = {
+      general: {years:6},
+      periodic: {years:3},
+      business: {years:3},
+      other: {years:6}
+    };
+
+    const form = document.getElementById('claimForm');
+    const typeEl = document.getElementById('type');
+    const amountEl = document.getElementById('amount');
+    const dueDateEl = document.getElementById('dueDate');
+    const startMethodEl = document.getElementById('startMethod');
+    const calcBtn = document.getElementById('calcBtn');
+    const clearBtn = document.getElementById('clearBtn');
+
+    const output = document.getElementById('output');
+    const msg = document.getElementById('msg');
+    const outDueDate = document.getElementById('outDueDate');
+    const outStart = document.getElementById('outStart');
+    const outPeriod = document.getElementById('outPeriod');
+    const outExpiry = document.getElementById('outExpiry');
+
+    function computeExpiry(){
+      output.hidden = true;
+      msg.textContent = '';
+      outDueDate.textContent = '';
+      outStart.textContent = '';
+      outPeriod.textContent = '';
+      outExpiry.textContent = '';
+
+      const type = typeEl.value;
+      const amount = amountEl.value;
+      const dueDate = parseDateInput(dueDateEl.value);
+      if(!dueDate){
+        msg.innerHTML = '<span class="error">Podaj poprawną datę wymagalności.</span>';
+        output.hidden = false;
         return;
       }
 
-      const dataWymagalnosci = new Date(dataWymagalnosciInput);
-      const dzis = new Date();
-
-      let lata = 6;
-      let podtyp = "pożyczenie prywatne (bez działalności gospodarczej)";
-
-      if (["kredyt", "faktura", "okresowe"].includes(typ)) {
-        lata = 3;
-        if (typ === "kredyt") {
-          podtyp = "kredyt / karta kredytowa";
-        } else if (typ === "faktura") {
-          podtyp = "faktura / działalność gospodarcza";
-        } else if (typ === "okresowe") {
-          podtyp = "roszczenie okresowe (czynsz, składka, abonament)";
-        }
-      }
-
-      const rokPrzedawnienia = dataWymagalnosci.getFullYear() + lata;
-      const koniecRoku = new Date(rokPrzedawnienia, 11, 31); // 31.12.X
-
-      const wynikEl = document.getElementById("wynik");
-      const pismoEl = document.getElementById("pismo");
-
-      if (dzis > koniecRoku) {
-        wynikEl.textContent = "Roszczenie jest przedawnione.";
-        wynikEl.style.color = "green";
+      // Wybór momentu rozpoczęcia biegu terminu
+      let start;
+      if(startMethodEl.value === 'nextDay'){
+        start = plusOneDay(dueDate);
       } else {
-        wynikEl.textContent = "Roszczenie nie jest jeszcze przedawnione.";
-        wynikEl.style.color = "red";
+        start = new Date(dueDate.getTime());
       }
 
-      // Data w formacie DD.MM.RRRR
-      const formatData = (d) => {
-        const dd = String(d.getDate()).padStart(2, "0");
-        const mm = String(d.getMonth() + 1).padStart(2, "0");
-        const yyyy = d.getFullYear();
-        return `${dd}.${mm}.${yyyy}`;
-      };
+      // Okres w latach domyślny
+      const periodYears = RULES[type] ? RULES[type].years : RULES.general.years;
 
-      const dataWymagalnosciFormatted = formatData(dataWymagalnosci);
-      const koniecRokuFormatted = formatData(koniecRoku);
+      // Data "naturalna" przedawnienia: start + okres
+      const naturalExpiry = addYears(start, periodYears);
 
-      const trescPisma = `Niniejszym zawiadamiam, że dochodzone wobec mnie roszczenie z tytułu ${podtyp}, uległo przedawnieniu na mocy art. 118 Kodeksu cywilnego.
+      // Jeżeli okres >= 2 lata, to koniec terminu przypada na ostatni dzień roku kalendarzowego (art. 118 i omówienia) 
+      // Jeśli okres < 2 lata, to upływa dokładnie po okresie.
+      let finalExpiry;
+      if(periodYears >= 2){
+        finalExpiry = endOfYear(naturalExpiry);
+      } else {
+        finalExpiry = new Date(naturalExpiry.getTime());
+      }
 
-Roszczenie z dnia ${dataWymagalnosciFormatted} r. stało się wymagalne dnia ${dataWymagalnosciFormatted} r. Zgodnie z art. 118 KC, dla roszczeń z działalności gospodarczej / roszczeń okresowych termin przedawnienia wynosi 3 lata, a dla ponadto określonych roszczeń (np. niektórych pożyczeń prywatnych) – 6 lat. Termin przedawnienia upływa zakończeniem roku kalendarzowego, tj. 31 grudnia ${koniecRokuFormatted} r.
+      // Wyświetlanie wyników
+      outDueDate.textContent = formatDate(dueDate) + (amount ? ' — ' + Number(amount).toFixed(2) + ' PLN' : '');
+      outStart.textContent = formatDate(start);
+      outPeriod.textContent = periodYears + ' lat';
+      outExpiry.textContent = formatDate(finalExpiry);
 
-Ponieważ od dnia wymagalności upłynął okres dłuższy niż ${lata} lata, roszczenie uległo przedawnieniu.
+      // Dodatkowy komunikat względny: czy już przedawnione
+      const today = new Date();
+      // Porównujemy bez czasu
+      function normalize(d){ return new Date(d.getFullYear(),d.getMonth(),d.getDate()); }
+      const normToday = normalize(today);
+      const normExpiry = normalize(finalExpiry);
+      if(normToday > normExpiry){
+        msg.innerHTML = '<span class="error">Uwaga: według podanych założeń roszczenie jest przedawnione.</span>';
+      } else if (normToday.getTime() === normExpiry.getTime()){
+        msg.innerHTML = '<span class="muted">Uwaga: termin przedawnienia upływa dziś.</span>';
+      } else {
+        msg.innerHTML = '<span class="muted">Roszczenie nie jest jeszcze przedawnione.</span>';
+      }
 
-W związku z powyższym:
-- nie uznaję dochodzonego roszczenia w zakresie, w jakim jest przedawnione,
-- wnioskuje przed sądem/firmą 
+      output.hidden = false;
+    }
+
+    calcBtn.addEventListener('click', computeExpiry);
+    clearBtn.addEventListener('click', ()=>{
+      form.reset();
+      output.hidden = true;
+    });
+
+    // Przykładowe wypełnienie daty domyślnej (dla testów)
+    (function setDefault(){
+      const today = new Date();
+      const iso = new Date(today.getFullYear()-1,today.getMonth(),today.getDate()).toISOString().slice(0,10);
+      // ustaw domyślną datę wymagalności na rok temu
+      dueDateEl.value = iso;
+    })();
+  </script>
+</body>
+</html>
