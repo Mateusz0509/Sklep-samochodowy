@@ -2,229 +2,213 @@
 <html lang="pl">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Kalkulator przedawnienia roszczeń (PL)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Domki drewniane na zamówienie | Premium i całoroczne</title>
+  <meta name="description" content="Domki drewniane na zamówienie w standardzie premium. Projekty indywidualne, domki letniskowe i całoroczne, transport, montaż oraz profesjonalna wycena." />
   <style>
-    :root{--bg:#f6f8fb;--card:#fff;--accent:#0b64c6;--muted:#6b7280;--danger:#c62828}
-    body{font-family:Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; background:var(--bg); margin:0; padding:24px; color:#111}
-    .wrap{max-width:860px;margin:0 auto}
-    header{display:flex;gap:16px;align-items:center}
-    h1{font-size:20px;margin:0}
-    p.lead{margin:6px 0 18px;color:var(--muted)}
-    .card{background:var(--card);padding:18px;border-radius:10px;box-shadow:0 6px 18px rgba(11,100,198,0.06);margin-bottom:16px}
-    form .row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
-    label{font-size:13px;color:var(--muted);display:block;margin-bottom:6px}
-    input[type="text"], input[type="date"], input[type="number"], select{
-      width:100%;padding:10px;border:1px solid #e6e9ef;border-radius:8px;font-size:15px;background:#fff;
+    :root{
+      --bg:#0f172a;
+      --bg2:#111827;
+      --card:#ffffff;
+      --text:#111827;
+      --muted:#6b7280;
+      --accent:#b08968;
+      --accent2:#1f2937;
+      --line:#e5e7eb;
     }
-    .actions{display:flex;gap:8px;align-items:center;margin-top:6px}
-    button{background:var(--accent);color:#fff;padding:10px 14px;border-radius:8px;border:0;font-weight:600;cursor:pointer}
-    button.secondary{background:#eef3ff;color:var(--accent);font-weight:600}
-    .result{padding:14px;border-radius:8px;background:#f8fafc;border:1px solid #e6edf8;margin-top:12px}
-    .muted{color:var(--muted);font-size:13px}
-    .note{font-size:13px;color:var(--muted);margin-top:8px}
-    footer{margin-top:18px;font-size:13px;color:var(--muted)}
-    table.summary{width:100%;border-collapse:collapse;margin-top:10px}
-    table.summary td{padding:8px;border-top:1px solid #eef2f7}
-    .error{color:var(--danger);font-weight:600}
-    @media(max-width:640px){ form .row{grid-template-columns:1fr} }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:Arial,Helvetica,sans-serif;color:var(--text);background:#f8fafc;line-height:1.6}
+    .container{width:min(1140px,92vw);margin:0 auto}
+    .hero{background:linear-gradient(135deg,var(--bg),var(--bg2));color:#fff;padding:96px 0 72px}
+    .hero-grid{display:grid;grid-template-columns:1.2fr .8fr;gap:32px;align-items:center}
+    .eyebrow{letter-spacing:.12em;text-transform:uppercase;color:#d1d5db;font-size:.82rem;margin:0 0 14px}
+    h1{font-size:clamp(2.2rem,5vw,4.6rem);line-height:1.05;margin:0 0 18px}
+    .lead{font-size:1.1rem;color:#e5e7eb;max-width:58ch;margin:0 0 28px}
+    .actions{display:flex;flex-wrap:wrap;gap:14px;margin-bottom:26px}
+    .btn{display:inline-block;padding:14px 22px;border-radius:999px;text-decoration:none;font-weight:700}
+    .btn-primary{background:var(--accent);color:#111827}
+    .btn-secondary{border:1px solid rgba(255,255,255,.25);color:#fff}
+    .hero-list{display:flex;flex-wrap:wrap;gap:12px;padding:0;margin:0;list-style:none}
+    .hero-list li{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);padding:10px 14px;border-radius:999px}
+    .hero-card{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:24px;padding:28px}
+    .hero-card h2{margin-top:0}
+    .section{padding:72px 0}
+    .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+    .grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:22px}
+    .card{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:26px;box-shadow:0 10px 30px rgba(15,23,42,.04)}
+    .card h3,.card h4{margin-top:0}
+    .muted{color:var(--muted)}
+    .section-title{font-size:clamp(1.7rem,3vw,2.5rem);margin:0 0 14px}
+    .steps{counter-reset:step}
+    .step{position:relative;padding-left:58px}
+    .step:before{counter-increment:step;content:counter(step);position:absolute;left:0;top:0;width:38px;height:38px;border-radius:50%;background:var(--accent);color:#111827;display:flex;align-items:center;justify-content:center;font-weight:800}
+    .faq details{background:#fff;border:1px solid var(--line);border-radius:16px;padding:18px 20px}
+    .faq summary{cursor:pointer;font-weight:700}
+    footer{padding:28px 0;border-top:1px solid var(--line);color:var(--muted);font-size:.95rem}
+    @media (max-width:900px){
+      .hero-grid,.grid-3,.grid-2{grid-template-columns:1fr}
+      .hero{padding-top:72px}
+    }
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <header>
-      <div>
-        <h1>Kalkulator przedawnienia roszczeń (Polska)</h1>
-        <p class="lead">Oblicza datę przedawnienia na podstawie daty wymagalności oraz rodzaju roszczenia.</p>
+
+<header class="hero">
+  <div class="container hero-grid">
+    <div>
+      <p class="eyebrow">Domki drewniane premium</p>
+      <h1>Domki drewniane na zamówienie</h1>
+      <p class="lead">
+        Projektujemy i budujemy eleganckie domki drewniane dopasowane do Twojej działki, stylu życia i budżetu.
+        Realizujemy projekty letniskowe, całoroczne i rekreacyjne w standardzie premium.
+      </p>
+      <div class="actions">
+        <a class="btn btn-primary" href="#oferta">Zobacz ofertę</a>
+        <a class="btn btn-secondary" href="#wycena">Poproś o wycenę</a>
       </div>
-    </header>
-
-    <section class="card" aria-labelledby="form-title">
-      <h2 id="form-title" style="margin-top:0;font-size:16px">Formularz roszczenia</h2>
-      <form id="claimForm" onsubmit="return false;">
-        <div class="row">
-          <div>
-            <label for="type">Rodzaj długu</label>
-            <select id="type" required>
-              <option value="general">Roszczenie majątkowe (ogólne)</option>
-              <option value="periodic">Roszczenie okresowe (np. czynsz, renta)</option>
-              <option value="business">Roszczenie związane z działalnością gospodarczą</option>
-              <option value="other">Inne (sprawdź przepisy)</option>
-            </select>
-          </div>
-          <div>
-            <label for="amount">Kwota (opcjonalnie)</label>
-            <input id="amount" type="number" min="0" step="0.01" placeholder="np. 1250.00" />
-          </div>
-        </div>
-
-        <div class="row">
-          <div>
-            <label for="dueDate">Data wymagalności</label>
-            <input id="dueDate" type="date" required />
-          </div>
-          <div>
-            <label for="startMethod">Metoda liczenia (domyślnie od dnia po wymagalności)</label>
-            <select id="startMethod">
-              <option value="nextDay">Od dnia następnego po dacie wymagalności</option>
-              <option value="sameDay">Od dnia wymagalności (użyj tylko z pewnością)</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="actions">
-          <button id="calcBtn" type="button">Oblicz datę przedawnienia</button>
-          <button id="clearBtn" class="secondary" type="button">Wyczyść</button>
-          <div style="margin-left:auto" class="muted">Źródła i założenia: KC art.117-125, art.118 i omówienia prawnicze</div>
-        </div>
-
-        <div id="output" class="result" hidden>
-          <div id="msg" class="muted"></div>
-          <table class="summary" id="summaryTable">
-            <tr><td>Data wymagalności</td><td id="outDueDate"></td></tr>
-            <tr><td>Data początkania biegu</td><td id="outStart"></td></tr>
-            <tr><td>Okres przedawnienia</td><td id="outPeriod"></td></tr>
-            <tr><td>Data przedawnienia</td><td id="outExpiry" style="font-weight:700"></td></tr>
-          </table>
-          <p class="note">Uwaga: program oblicza termin według ogólnych reguł (3 lata lub 6 lat) i przesuwa koniec terminu na koniec roku kalendarzowego, jeżeli termin jest dłuższy niż 2 lata. Nie uwzględnia wyjątków ustawowych ani przerwania/biegów wcześniejszych działań (przerwanie lub zawieszenie biegu przedawnienia może zmienić wynik) — w takim przypadku skonsultuj się z prawnikiem.</p>
-        </div>
-      </form>
-    </section>
-
-    <section class="card">
-      <h3 style="margin-top:0">Jak działa kalkulator (krótko)</h3>
-      <p class="muted">Podstawowy termin przedawnienia to 6 lat; krótszy 3‑letni dotyczy roszczeń okresowych i roszczeń związanych z działalnością gospodarczą; koniec terminu przypada na ostatni dzień roku kalendarzowego, chyba że termin jest krótszy niż 2 lata — wtedy kończy się dokładnie po upływie okresu. Te zasady oparte są na art.118 k.c. i omówieniach prawniczych [web:1][web:5][web:6].</p>
-    </section>
-
-    <footer>
-      <div class="muted">Plik stworzony dla użytkownika Mateusz treder, Warszawa.</div>
-    </footer>
+      <ul class="hero-list">
+        <li>Indywidualny projekt</li>
+        <li>Transport i montaż</li>
+        <li>Wysoki standard wykonania</li>
+        <li>Domki letniskowe i całoroczne</li>
+      </ul>
+    </div>
+    <div class="hero-card">
+      <h2>Twój domek w 4 krokach</h2>
+      <ol class="steps">
+        <li class="step"><strong>Kontakt</strong> – opisujesz potrzeby i lokalizację.</li>
+        <li class="step"><strong>Wycena</strong> – przygotowujemy propozycję projektu.</li>
+        <li class="step"><strong>Produkcja</strong> – realizujemy domek według ustaleń.</li>
+        <li class="step"><strong>Montaż</strong> – dostarczamy i montujemy gotowy obiekt.</li>
+      </ol>
+    </div>
   </div>
+</header>
 
-  <script>
-    // Pomocnicze funkcje dat
-    function parseDateInput(val){
-      if(!val) return null;
-      let d = new Date(val + 'T00:00:00');
-      return isNaN(d) ? null : d;
-    }
-    function addYears(date, years){
-      let d = new Date(date.getTime());
-      d.setFullYear(d.getFullYear() + years);
-      return d;
-    }
-    function formatDate(d){
-      if(!d) return '';
-      return d.toLocaleDateString('pl-PL');
-    }
-    function endOfYear(d){
-      return new Date(d.getFullYear(),11,31,0,0,0);
-    }
-    function plusOneDay(d){
-      let nd = new Date(d.getTime());
-      nd.setDate(nd.getDate()+1);
-      return nd;
-    }
+<main>
+  <section class="section">
+    <div class="container">
+      <h2 class="section-title">Dlaczego warto</h2>
+      <p class="muted">Stawiamy na estetykę, funkcjonalność i indywidualne podejście do każdej realizacji.</p>
+      <div class="grid-3">
+        <div class="card">
+          <h3>Projekt na miarę</h3>
+          <p>Układ wnętrza, metraż, taras, antresola i standard wykończenia dopasowane do Twoich oczekiwań.</p>
+        </div>
+        <div class="card">
+          <h3>Jakość premium</h3>
+          <p>Naturalne materiały, dopracowane detale i nowoczesna estetyka, która dobrze wygląda przez lata.</p>
+        </div>
+        <div class="card">
+          <h3>Obsługa kompleksowa</h3>
+          <p>Od pierwszej rozmowy i wyceny, przez produkcję, aż po transport i montaż.</p>
+        </div>
+      </div>
+    </div>
+  </section>
 
-    // Zasady (konfiguracja)
-    const RULES = {
-      general: {years:6},
-      periodic: {years:3},
-      business: {years:3},
-      other: {years:6}
-    };
+  <section class="section" id="oferta">
+    <div class="container">
+      <h2 class="section-title">Oferta</h2>
+      <div class="grid-2">
+        <div class="card">
+          <h3>Domki letniskowe</h3>
+          <p>Idealne na działkę, wypoczynek sezonowy i wynajem krótkoterminowy.</p>
+        </div>
+        <div class="card">
+          <h3>Domki całoroczne</h3>
+          <p>Rozwiązania dla osób, które chcą korzystać z domku przez cały rok.</p>
+        </div>
+        <div class="card">
+          <h3>Domki na zamówienie</h3>
+          <p>Pełna personalizacja projektu, wymiarów i wykończenia.</p>
+        </div>
+        <div class="card">
+          <h3>Domki premium z tarasem</h3>
+          <p>Eleganckie realizacje dla klientów oczekujących wyższego standardu.</p>
+        </div>
+      </div>
+    </div>
+  </section>
 
-    const form = document.getElementById('claimForm');
-    const typeEl = document.getElementById('type');
-    const amountEl = document.getElementById('amount');
-    const dueDateEl = document.getElementById('dueDate');
-    const startMethodEl = document.getElementById('startMethod');
-    const calcBtn = document.getElementById('calcBtn');
-    const clearBtn = document.getElementById('clearBtn');
+  <section class="section">
+    <div class="container">
+      <h2 class="section-title">Wersja premium</h2>
+      <div class="card">
+        <p>
+          Nasze domki drewniane premium powstają z myślą o klientach, którzy oczekują nie tylko trwałej konstrukcji,
+          ale też reprezentacyjnego wyglądu i komfortu użytkowania. Każdy projekt przygotowujemy indywidualnie,
+          dopasowując go do działki, przeznaczenia oraz stylu inwestora.
+        </p>
+        <p>
+          Oferujemy nowoczesne domki letniskowe, całoroczne i rekreacyjne, w których liczy się harmonia między
+          estetyką a funkcjonalnością. Dzięki możliwości wyboru metrażu, układu pomieszczeń, rodzaju tarasu,
+          stolarki i standardu wykończenia, otrzymujesz przestrzeń zaprojektowaną dokładnie pod siebie.
+        </p>
+      </div>
+    </div>
+  </section>
 
-    const output = document.getElementById('output');
-    const msg = document.getElementById('msg');
-    const outDueDate = document.getElementById('outDueDate');
-    const outStart = document.getElementById('outStart');
-    const outPeriod = document.getElementById('outPeriod');
-    const outExpiry = document.getElementById('outExpiry');
+  <section class="section" id="wycena">
+    <div class="container">
+      <h2 class="section-title">Wycena</h2>
+      <div class="card">
+        <p><strong>Piotr Lewandowski</strong> – właściciel działalności</p>
+        <p class="muted">Aby przygotować ofertę, wyślij nam: metraż, typ domku, lokalizację, planowany budżet i termin realizacji.</p>
+      </div>
+    </div>
+  </section>
 
-    function computeExpiry(){
-      output.hidden = true;
-      msg.textContent = '';
-      outDueDate.textContent = '';
-      outStart.textContent = '';
-      outPeriod.textContent = '';
-      outExpiry.textContent = '';
+  <section class="section faq">
+    <div class="container">
+      <h2 class="section-title">FAQ</h2>
+      <div class="grid-2">
+        <details>
+          <summary>Jak długo trwa realizacja?</summary>
+          <p>Termin zależy od projektu, standardu i dostępności produkcji, ale na start zawsze przygotowujemy realny harmonogram.</p>
+        </details>
+        <details>
+          <summary>Czy można zamówić projekt indywidualny?</summary>
+          <p>Tak. Każdy domek możemy dopasować do wymiarów działki, potrzeb rodziny i oczekiwanego stylu.</p>
+        </details>
+        <details>
+          <summary>Czy oferujecie transport i montaż?</summary>
+          <p>Tak, zapewniamy transport oraz montaż ustalany indywidualnie przy wycenie.</p>
+        </details>
+        <details>
+          <summary>Czy wykonujecie domki całoroczne?</summary>
+          <p>Tak, w ofercie są również domki całoroczne przeznaczone do użytkowania przez cały rok.</p>
+        </details>
+      </div>
+    </div>
+  </section>
 
-      const type = typeEl.value;
-      const amount = amountEl.value;
-      const dueDate = parseDateInput(dueDateEl.value);
-      if(!dueDate){
-        msg.innerHTML = '<span class="error">Podaj poprawną datę wymagalności.</span>';
-        output.hidden = false;
-        return;
-      }
+  <section class="section">
+    <div class="container">
+      <h2 class="section-title">Opinie klientów</h2>
+      <div class="grid-3">
+        <div class="card">
+          <p>„Profesjonalne podejście od pierwszego kontaktu. Domek wygląda jeszcze lepiej niż na projekcie.”</p>
+          <p class="muted">— Anna, klientka prywatna</p>
+        </div>
+        <div class="card">
+          <p>„Duża elastyczność przy zmianach w projekcie i bardzo dobra komunikacja na każdym etapie.”</p>
+          <p class="muted">— Tomasz, inwestor</p>
+        </div>
+        <div class="card">
+          <p>„Solidne wykonanie, estetyczny efekt i terminowo przeprowadzony montaż.”</p>
+          <p class="muted">— Katarzyna, właścicielka działki rekreacyjnej</p>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
 
-      // Wybór momentu rozpoczęcia biegu terminu
-      let start;
-      if(startMethodEl.value === 'nextDay'){
-        start = plusOneDay(dueDate);
-      } else {
-        start = new Date(dueDate.getTime());
-      }
+<footer>
+  <div class="container">
+    © 2026 Piotr Lewandowski. Domki drewniane na zamówienie.
+  </div>
+</footer>
 
-      // Okres w latach domyślny
-      const periodYears = RULES[type] ? RULES[type].years : RULES.general.years;
-
-      // Data "naturalna" przedawnienia: start + okres
-      const naturalExpiry = addYears(start, periodYears);
-
-      // Jeżeli okres >= 2 lata, to koniec terminu przypada na ostatni dzień roku kalendarzowego (art. 118 i omówienia) 
-      // Jeśli okres < 2 lata, to upływa dokładnie po okresie.
-      let finalExpiry;
-      if(periodYears >= 2){
-        finalExpiry = endOfYear(naturalExpiry);
-      } else {
-        finalExpiry = new Date(naturalExpiry.getTime());
-      }
-
-      // Wyświetlanie wyników
-      outDueDate.textContent = formatDate(dueDate) + (amount ? ' — ' + Number(amount).toFixed(2) + ' PLN' : '');
-      outStart.textContent = formatDate(start);
-      outPeriod.textContent = periodYears + ' lat';
-      outExpiry.textContent = formatDate(finalExpiry);
-
-      // Dodatkowy komunikat względny: czy już przedawnione
-      const today = new Date();
-      // Porównujemy bez czasu
-      function normalize(d){ return new Date(d.getFullYear(),d.getMonth(),d.getDate()); }
-      const normToday = normalize(today);
-      const normExpiry = normalize(finalExpiry);
-      if(normToday > normExpiry){
-        msg.innerHTML = '<span class="error">Uwaga: według podanych założeń roszczenie jest przedawnione.</span>';
-      } else if (normToday.getTime() === normExpiry.getTime()){
-        msg.innerHTML = '<span class="muted">Uwaga: termin przedawnienia upływa dziś.</span>';
-      } else {
-        msg.innerHTML = '<span class="muted">Roszczenie nie jest jeszcze przedawnione.</span>';
-      }
-
-      output.hidden = false;
-    }
-
-    calcBtn.addEventListener('click', computeExpiry);
-    clearBtn.addEventListener('click', ()=>{
-      form.reset();
-      output.hidden = true;
-    });
-
-    // Przykładowe wypełnienie daty domyślnej (dla testów)
-    (function setDefault(){
-      const today = new Date();
-      const iso = new Date(today.getFullYear()-1,today.getMonth(),today.getDate()).toISOString().slice(0,10);
-      // ustaw domyślną datę wymagalności na rok temu
-      dueDateEl.value = iso;
-    })();
-  </script>
 </body>
 </html>
